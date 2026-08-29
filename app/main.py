@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.infrastructure.config import get_settings
+
 from app.presentation.api.handlers import register_exception_handlers
 
 

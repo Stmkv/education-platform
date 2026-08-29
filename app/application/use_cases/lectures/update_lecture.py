@@ -8,16 +8,26 @@ from app.application.interfaces.repositories.lecture_repository import LectureRe
 
 
 @dataclass(slots=True)
-class GetLectureQuery:
+class UpdateLectureCommand:
     lecture_id: UUID
+    title: str
+    content: str
+    position: int
 
 
-class GetLectureUseCase:
+class UpdateLectureUseCase:
     def __init__(self, lecture_repository: LectureRepository) -> None:
         self.lecture_repository = lecture_repository
 
-    async def execute(self, query: GetLectureQuery) -> Lecture:
-        lecture = await self.lecture_repository.get_by_id(query.lecture_id)
+    async def execute(self, command: UpdateLectureCommand) -> Lecture:
+        lecture = await self.lecture_repository.get_by_id(command.lecture_id)
         if lecture is None:
             raise LectureNotFoundError("Lecture not found.")
+
+        lecture.update(
+            title=command.title,
+            content=command.content,
+            position=command.position,
+        )
+        await self.lecture_repository.update(lecture)
         return lecture

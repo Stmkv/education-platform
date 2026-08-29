@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from app.application.exceptions import ApplicationError, CourseNotFoundError
 from app.domain.exceptions import DomainError
+
+from app.application.exceptions import ApplicationError, CourseNotFoundError
+
 from app.presentation.api.schemas import ErrorResponse
 
 
