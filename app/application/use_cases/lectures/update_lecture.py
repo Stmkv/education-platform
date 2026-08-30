@@ -5,6 +5,7 @@ from app.domain.entities import Lecture
 
 from app.application.exceptions import LectureNotFoundError
 from app.application.interfaces.repositories.lecture_repository import LectureRepository
+from app.application.interfaces.unit_of_work import UnitOfWork
 
 
 @dataclass(slots=True)
@@ -16,18 +17,25 @@ class UpdateLectureCommand:
 
 
 class UpdateLectureUseCase:
-    def __init__(self, lecture_repository: LectureRepository) -> None:
+    def __init__(
+        self,
+        lecture_repository: LectureRepository,
+        uow: UnitOfWork,
+    ) -> None:
+        self.uow = uow
         self.lecture_repository = lecture_repository
 
     async def execute(self, command: UpdateLectureCommand) -> Lecture:
-        lecture = await self.lecture_repository.get_by_id(command.lecture_id)
-        if lecture is None:
-            raise LectureNotFoundError("Lecture not found.")
+        async with self.uow:
+            lecture = await self.uow.lectures.get_by_id(command.lecture_id)
+            if lecture is None:
+                raise LectureNotFoundError("Lecture not found.")
 
-        lecture.update(
-            title=command.title,
-            content=command.content,
-            position=command.position,
-        )
-        await self.lecture_repository.update(lecture)
-        return lecture
+            lecture.update(
+                title=command.title,
+                content=command.content,
+                position=command.position,
+            )
+            await self.uow.lectures.update(lecture)
+            await self.uow.commit()
+            return lecture
