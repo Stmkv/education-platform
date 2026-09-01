@@ -7,6 +7,20 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BASE_DIR = Path(__file__).resolve().parents[3]
 
 
+class Jwt(BaseModel):
+    secret_key: str = Field(
+        ...,
+        description="JWT secret key",
+    )
+    algorithm: str = Field(
+        default="HS256",
+        description="JWT algorithm",
+    )
+    access_token_expire_minutes: int = Field(
+        default=30,
+        description="Access token expiration time in minnutes",
+    )
+
 class Api(BaseModel):
     prefix: str = Field(
         default="/api",
@@ -74,6 +88,7 @@ class Settings(BaseSettings):
     app: App
     api: Api
     database: Database
+    jwt: Jwt
 
 
 @lru_cache(maxsize=1)
