@@ -12,6 +12,7 @@ from app.application.exceptions import (
 )
 
 from app.presentation.api.schemas import ErrorResponse
+from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
 
 
 def build_error_response(error: str, message: str, status_code: int) -> JSONResponse:
@@ -67,9 +68,29 @@ async def lecture_not_found_handler(request: Request, exc: Exception) -> JSONRes
     )
 
 
+async def authentication_error_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
+    return build_error_response(
+        error="authentication_error",
+        message=str(exc),
+        status_code=status.HTTP_401_UNAUTHORIZED,
+    )
+
+
+async def permission_denied_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="permission_denied",
+        message=str(exc),
+        status_code=status.HTTP_403_FORBIDDEN,
+    )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, domain_error_handler)
     app.add_exception_handler(ApplicationError, application_error_handler)
+    app.add_exception_handler(AuthenticationError, authentication_error_handler)
+    app.add_exception_handler(PermissionDeniedError, permission_denied_handler)
     app.add_exception_handler(CourseNotFoundError, course_not_found_handler)
     app.add_exception_handler(ModuleNotFoundError, module_not_found_handler)
     app.add_exception_handler(SectionNotFoundError, section_not_found_handler)
