@@ -4,7 +4,6 @@ from uuid import UUID
 from app.domain.entities import Lecture
 
 from app.application.exceptions import LectureNotFoundError
-from app.application.interfaces.repositories.lecture_repository import LectureRepository
 from app.application.interfaces.unit_of_work import UnitOfWork
 
 
@@ -19,11 +18,9 @@ class UpdateLectureCommand:
 class UpdateLectureUseCase:
     def __init__(
         self,
-        lecture_repository: LectureRepository,
         uow: UnitOfWork,
     ) -> None:
         self.uow = uow
-        self.lecture_repository = lecture_repository
 
     async def execute(self, command: UpdateLectureCommand) -> Lecture:
         async with self.uow:

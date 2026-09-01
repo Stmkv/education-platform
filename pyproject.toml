@@ -41,3 +41,6 @@ domain = ["app.domain"]
 application = ["app.application"]
 infra = ["app.infrastructure"]
 presentation = ["app.presentation"]
+
+[tool.ruff.lint]
+extend-ignore = ["B008"]

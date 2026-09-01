@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parents[3]
 
 
 class Api(BaseModel):
-    api_prefix: str = Field(
+    prefix: str = Field(
         default="/api",
         description="API base path",
     )

@@ -4,7 +4,6 @@ from uuid import UUID
 from app.domain.entities.section import Section
 
 from app.application.exceptions import SectionNotFoundError
-from app.application.interfaces.repositories.section_repository import SectionRepository
 from app.application.interfaces.unit_of_work import UnitOfWork
 
 
@@ -19,11 +18,9 @@ class UpdateSectionCommand:
 class UpdateSectionUseCase:
     def __init__(
         self,
-        section_repository: SectionRepository,
         uow: UnitOfWork,
     ) -> None:
         self.uow = uow
-        self.section_repository = section_repository
 
     async def execute(self, command: UpdateSectionCommand) -> Section:
         async with self.uow:
