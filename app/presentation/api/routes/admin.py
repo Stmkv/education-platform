@@ -1,10 +1,14 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Response, status
 
 from app.application.use_cases.courses.create_course import (
     CreateCourseCommand,
     CreateCourseUseCase,
+)
+from app.application.use_cases.courses.delete_course import (
+    DeleteCourseCommand,
+    DeleteCourseUseCase,
 )
 from app.application.use_cases.courses.update_course import (
     UpdateCourseCommand,
@@ -14,6 +18,7 @@ from app.application.use_cases.lectures.create_lecture import (
     CreateLectureCommand,
     CreateLectureUseCase,
 )
+from app.application.use_cases.lectures.delete_lecture import DeleteLectureUseCase, DeleteLectureCommand
 from app.application.use_cases.lectures.update_lecture import (
     UpdateLectureCommand,
     UpdateLectureUseCase,
@@ -22,6 +27,7 @@ from app.application.use_cases.modules.create_module import (
     CreateModuleCommand,
     CreateModuleUseCase,
 )
+from app.application.use_cases.modules.delete_module import DeleteModuleCommand, DeleteModuleUseCase
 from app.application.use_cases.modules.update_module import (
     UpdateModuleCommand,
     UpdateModuleUseCase,
@@ -30,6 +36,7 @@ from app.application.use_cases.sections.create_section import (
     CreateSectionCommand,
     CreateSectionUseCase,
 )
+from app.application.use_cases.sections.delete_section import DeleteSectionUseCase, DeleteSectionCommand
 from app.application.use_cases.sections.update_section import (
     UpdateSectionCommand,
     UpdateSectionUseCase,
@@ -41,10 +48,11 @@ from app.presentation.api.dependencies import (
     get_create_module_use_case,
     get_create_section_use_case,
     get_current_admin,
+    get_delete_course_use_case,
     get_update_course_use_case,
     get_update_lecture_use_case,
     get_update_module_use_case,
-    get_update_section_use_case,
+    get_update_section_use_case, get_delete_module_use_case, get_delete_section_use_case, get_delete_lecture_use_case,
 )
 from app.presentation.api.schemas import (
     CourseResponse,
@@ -138,6 +146,28 @@ async def update_course(
     )
     return CourseResponse.model_validate(result)
 
+
+@router.delete(
+    "/courses/{course_id}",
+    summary="Delete course",
+    description=(
+            "Delete an existing course by its identifier. "
+    ),
+    responses={
+        404: {
+            "description": "Course was not found.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def delete_course(
+        course_id: UUID,
+        use_case: DeleteCourseUseCase = Depends(get_delete_course_use_case),
+) -> Response:
+    await use_case.execute(DeleteCourseCommand(course_id=course_id))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.post(
     "/courses/{course_id}/modules",
     response_model=ModuleResponse,
@@ -207,6 +237,27 @@ async def update_module(
         )
     )
     return ModuleResponse.model_validate(result)
+
+
+@router.delete(
+    "/modules/{module_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete module",
+    description="Delete an existing module by its identifier.",
+    responses={
+        404: {
+            "description": "Module was not found.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def delete_module(
+        module_id: UUID,
+        use_case: DeleteModuleUseCase = Depends(get_delete_module_use_case),
+) -> Response:
+    await use_case.execute(DeleteModuleCommand(module_id=module_id))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 @router.post(
     "/modules/{module_id}/sections",
@@ -278,6 +329,27 @@ async def update_section(
     )
     return SectionResponse.model_validate(result)
 
+
+@router.delete(
+    "/sections/{section_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete section",
+    description="Delete an existing section by its identifier.",
+    responses={
+        404: {
+            "description": "Section was not found.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def delete_section(
+        section_id: UUID,
+        use_case: DeleteSectionUseCase = Depends(get_delete_section_use_case),
+) -> Response:
+    await use_case.execute(DeleteSectionCommand(section_id=section_id))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.post(
     "/sections/{section_id}/lectures",
     response_model=LectureResponse,
@@ -347,3 +419,23 @@ async def update_lecture(
         )
     )
     return LectureResponse.model_validate(result)
+
+
+@router.delete(
+    "/lectures/{lecture_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete lecture",
+    description="Deletes an existing lecture by its identifier. ",
+    responses={
+        404: {
+            "description": "Lecture was not found.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def delete_lecture(
+        lecture_id: UUID,
+        use_case: DeleteLectureUseCase = Depends(get_delete_lecture_use_case),
+) -> Response:
+    await use_case.execute(DeleteLectureCommand(lecture_id=lecture_id))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
